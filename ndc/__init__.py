@@ -4,6 +4,7 @@ Python wrapper for NDC.
 http://euee.web.fc2.com/tool/nd.html
 """
 
+import platform
 import subprocess
 
 from datetime import datetime
@@ -51,7 +52,6 @@ class NDC:
     SUPPORTED_VERSIONS = [
         'NDC Ver.0 alpha06',
     ]
-    TIMESTAMP_FMT = '%a %b %d %H:%M:%S %Y'
     DELIMITER = '\t'
     ERRORS = {
         'イメージのオープンに失敗しました。': NDCPermissionError,
@@ -62,12 +62,21 @@ class NDC:
 
     def __init__(self, bin='ndc'):
         self.bin = expanduser(bin)
+        self.__configure_platform()
         self.__validate_bin_version()
+
+    def __configure_platform(self):
+        if platform.system() == 'Windows':
+            self.encoding = 'shift-jis'
+            self.timestamp_fmt = '%Y/%m/%d %H:%M:%S'
+        else:
+            self.encoding = 'utf-8'
+            self.timestamp_fmt = '%a %b %d %H:%M:%S %Y'
 
     def __validate_bin_version(self):
         version = (subprocess
                    .check_output(self.bin)
-                   .decode()
+                   .decode(self.encoding)
                    .splitlines()
                    .pop(0))
         if version not in self.SUPPORTED_VERSIONS:
@@ -76,18 +85,21 @@ class NDC:
 
     def __run(self, cmd):
         try:
-            result = subprocess.check_output(cmd).decode().splitlines()
+            result = (subprocess
+                      .check_output(cmd)
+                      .decode(self.encoding)
+                      .splitlines())
             result.pop()  # success message
             return result
         except subprocess.CalledProcessError as e:
-            error_msg = e.output.decode().strip()
+            error_msg = e.output.decode(self.encoding).strip()
             error_msg = error_msg[:error_msg.index('。') + 1]
             raise self.ERRORS[error_msg](error_msg)
 
     def __parse(self, line):
         """Helper function for parsing output from list, and find."""
         args = line.split(self.DELIMITER)
-        args[-1] = datetime.strptime(args[-1], self.TIMESTAMP_FMT)
+        args[-1] = datetime.strptime(args[-1], self.timestamp_fmt)
         return tuple(args)
 
     def list(self, image, path='', partition=0):
