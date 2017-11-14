@@ -4,6 +4,7 @@ Python wrapper for NDC.
 http://euee.web.fc2.com/tool/nd.html
 """
 
+import platform
 import subprocess
 
 from datetime import datetime
@@ -51,7 +52,6 @@ class NDC:
     SUPPORTED_VERSIONS = [
         'NDC Ver.0 alpha06',
     ]
-    TIMESTAMP_FMT = '%a %b %d %H:%M:%S %Y'
     DELIMITER = '\t'
     ERRORS = {
         'イメージのオープンに失敗しました。': NDCPermissionError,
@@ -76,18 +76,31 @@ class NDC:
 
     def __run(self, cmd):
         try:
-            result = subprocess.check_output(cmd).decode().splitlines()
+            result = self.__decode(subprocess.check_output(cmd)).splitlines()
             result.pop()  # success message
             return result
         except subprocess.CalledProcessError as e:
-            error_msg = e.output.decode().strip()
+            error_msg = self.__decode(e.output).strip()
             error_msg = error_msg[:error_msg.index('。') + 1]
             raise self.ERRORS[error_msg](error_msg)
 
+    def __is_windows(self):
+        return platform.system() == 'Windows'
+
+    def __decode(self, output):
+        if self.__is_windows():
+            return output.decode('shift-jis')
+        else:
+            return output.decode()
+
     def __parse(self, line):
         """Helper function for parsing output from list, and find."""
+        if self.__is_windows():
+            TIMESTAMP_FMT = '%Y/%m/%d %H:%M:%S'
+        else:
+            TIMESTAMP_FMT = '%a %b %d %H:%M:%S %Y'
         args = line.split(self.DELIMITER)
-        args[-1] = datetime.strptime(args[-1], self.TIMESTAMP_FMT)
+        args[-1] = datetime.strptime(args[-1], TIMESTAMP_FMT)
         return tuple(args)
 
     def list(self, image, path='', partition=0):
