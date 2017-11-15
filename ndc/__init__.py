@@ -65,11 +65,12 @@ class NDC:
         self.__validate_bin_version()
 
     def __validate_bin_version(self):
-        version = (subprocess
-                   .check_output(self.bin)
-                   .decode()
-                   .splitlines()
-                   .pop(0))
+        ndc_output = subprocess.check_output(self.bin)
+        if self.__is_windows():
+            decoded_output = ndc_output.decode('shift-jis')
+        else:
+            decoded_output = ndc_output.decode()
+        version = decoded_output.splitlines().pop(0)
         if version not in self.SUPPORTED_VERSIONS:
             raise NDCVersionException('Unsupported version: %s' % version)
         self.version = version
