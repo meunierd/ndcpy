@@ -1,6 +1,7 @@
 # ndcpy
 
-A Python wrapper for ndc leveraging native Python types.
+A Python wrapper for [ndc](http://euee.web.fc2.com/tool/nd.html#ndc)
+leveraging native Python types.
 
 ## Supported Version
 
