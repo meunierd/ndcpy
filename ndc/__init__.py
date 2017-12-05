@@ -38,6 +38,8 @@ class NDCInvalidImagePathError(NDCRuntimeError):
 class NDCInvalidPartitionError(NDCRuntimeError):
     pass
 
+class NDCFileStorageFailureError(NDCRuntimeError):
+    pass
 
 class NDC:
     """
@@ -58,6 +60,7 @@ class NDC:
         '指定のフォルダが存在しません。': NDCFileNotFoundError,
         'イメージパスが不正です。': NDCInvalidImagePathError,
         'パーティション番号が不正です。': NDCInvalidPartitionError,
+        'ファイルの格納に失敗しました。': NDCFileStorageFailureError,
     }
 
     def __init__(self, bin='ndc'):
