@@ -8,6 +8,7 @@ import platform
 import subprocess
 
 from datetime import datetime
+from dateutil.parser import parse as dateparse
 from os.path import expanduser
 
 
@@ -99,7 +100,8 @@ class NDC:
     def __parse(self, line):
         """Helper function for parsing output from list, and find."""
         args = line.split(self.DELIMITER)
-        args[-1] = datetime.strptime(args[-1], self.timestamp_fmt)
+        #args[-1] = datetime.strptime(args[-1], self.timestamp_fmt)
+        args[-1] = dateparse(args[-1])
         return tuple(args)
 
     def list(self, image, path='', partition=0):
