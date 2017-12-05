@@ -8,6 +8,7 @@ import platform
 import subprocess
 
 from datetime import datetime
+from dateutil.parser import parse as dateparse
 from os.path import expanduser
 
 
@@ -71,10 +72,8 @@ class NDC:
     def __configure_platform(self):
         if platform.system() == 'Windows':
             self.encoding = 'shift-jis'
-            self.timestamp_fmt = '%Y/%m/%d %H:%M:%S'
         else:
             self.encoding = 'utf-8'
-            self.timestamp_fmt = '%a %b %d %H:%M:%S %Y'
 
     def __validate_bin_version(self):
         version = (subprocess
@@ -102,7 +101,7 @@ class NDC:
     def __parse(self, line):
         """Helper function for parsing output from list, and find."""
         args = line.split(self.DELIMITER)
-        args[-1] = datetime.strptime(args[-1], self.timestamp_fmt)
+        args[-1] = dateparse(args[-1])
         return tuple(args)
 
     def list(self, image, path='', partition=0):
