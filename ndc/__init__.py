@@ -100,7 +100,6 @@ class NDC:
     def __parse(self, line):
         """Helper function for parsing output from list, and find."""
         args = line.split(self.DELIMITER)
-        #args[-1] = datetime.strptime(args[-1], self.timestamp_fmt)
         args[-1] = dateparse(args[-1])
         return tuple(args)
 
