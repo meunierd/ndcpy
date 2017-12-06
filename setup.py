@@ -9,4 +9,7 @@ setup(
     author_email='devon.meunier@gmail.com',
     license='MIT',
     packages=["ndc"],
+    install_requires=[
+        'python-dateutil',
+    ],
 )
