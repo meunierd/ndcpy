@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='ndcpy',
-    version='0.2.0',
+    version='0.2.1',
     description='A Python wrapper for NDC',
     url='https://github.com/meunierd/ndcpy',
     author='Devon Meunier',
