@@ -38,8 +38,14 @@ class NDCInvalidImagePathError(NDCRuntimeError):
 class NDCInvalidPartitionError(NDCRuntimeError):
     pass
 
+
 class NDCFileStorageFailureError(NDCRuntimeError):
     pass
+
+
+class NDCInvalidSourcePathError(NDCRuntimeError):
+    pass
+
 
 class NDC:
     """
@@ -61,6 +67,7 @@ class NDC:
         'イメージパスが不正です。': NDCInvalidImagePathError,
         'パーティション番号が不正です。': NDCInvalidPartitionError,
         'ファイルの格納に失敗しました。': NDCFileStorageFailureError,
+        '読み込み元パスが存在しません。': NDCInvalidSourcePathError,
     }
 
     def __init__(self, bin='ndc'):
@@ -155,7 +162,7 @@ class NDC:
             'P',
             expanduser(image),
             str(partition),
-            src,
+            expanduser(src),
             path,
         ]
         self.__run(cmd)

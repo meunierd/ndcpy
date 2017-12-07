@@ -12,4 +12,9 @@ setup(
     install_requires=[
         'python-dateutil',
     ],
+    extras_require={
+        'dev': [
+            'pytest',
+        ]
+    },
 )

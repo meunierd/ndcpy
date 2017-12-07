@@ -1,0 +1,15 @@
+---
+environment:
+    matrix:
+        - PYTHON: "C:\\Python36"
+build: off
+install:
+    - cmd: "SET PATH=C:\\Python36;C:\\Python36\\Scripts;%PATH%"
+    - cmd: "pip install -e .[dev]"
+    - cmd: "curl http://euee.web.fc2.com/tool/NDC0A06.LZH -o ndc.lzh"
+    - cmd: "7z x ndc.lzh"
+    - cmd: "del ndc.lzh"
+    - cmd: "mkdir -p tests\\fixtures\\ndcs\\0a06"
+    - cmd: "move ndc* tests\\fixtures\\ndcs\\0a06"
+test_script:
+    - "pytest"
