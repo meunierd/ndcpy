@@ -1,5 +1,7 @@
 # ndcpy
 
+[![Build status](https://ci.appveyor.com/api/projects/status/57hqdm1va6ew33ti/branch/master?svg=true)](https://ci.appveyor.com/project/meunierd/ndcpy/branch/master)
+
 A Python wrapper for [ndc](http://euee.web.fc2.com/tool/nd.html#ndc)
 leveraging native Python types.
 
