@@ -1,5 +1,6 @@
 # ndcpy
 
+[![PyPI version](https://badge.fury.io/py/ndcpy.svg)](https://badge.fury.io/py/ndcpy)
 [![Build Status](https://travis-ci.org/meunierd/ndcpy.svg?branch=master)](https://travis-ci.org/meunierd/ndcpy)
 [![Build status](https://ci.appveyor.com/api/projects/status/57hqdm1va6ew33ti/branch/master?svg=true)](https://ci.appveyor.com/project/meunierd/ndcpy/branch/master)
 
