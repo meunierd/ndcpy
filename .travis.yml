@@ -1,0 +1,13 @@
+---
+language: python
+python:
+    - "3.6"
+install:
+    - "curl http://euee.web.fc2.com/tool/ndcl0a06x64.tgz -o ndc.tgz"
+    - "mkdir -p tests/fixtures/ndcs/0a06"
+    - "tar xvf ndc.tgz -C tests/fixtures/ndcs/0a06"
+    - "ls tests/fixtures/ndcs/0a06"
+    - "rm ndc.tgz"
+    - "pip install -e '.[dev]'"
+script:
+    - "pytest"
