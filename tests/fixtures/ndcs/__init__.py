@@ -2,7 +2,7 @@ import platform
 
 from os import path
 
-LATEST_VERSION = '0a06'
+LATEST_VERSION = '0a06b'
 
 if platform == 'Windows':
     BIN = 'NDC.EXE'

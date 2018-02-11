@@ -58,6 +58,7 @@ class NDC:
     * `image` is a path to a disk image.
     """
     SUPPORTED_VERSIONS = [
+        'NDC Ver.0 alpha06b',
         'NDC Ver.0 alpha06',
     ]
     DELIMITER = '\t'
