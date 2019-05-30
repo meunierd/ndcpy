@@ -8,7 +8,8 @@ import platform
 import subprocess
 
 from dateutil.parser import parse as dateparse
-from os.path import expanduser
+from os import mkdir
+from os.path import expanduser, join
 
 
 class NDCError(Exception):
@@ -47,6 +48,10 @@ class NDCInvalidSourcePathError(NDCRuntimeError):
     pass
 
 
+class NDCInvalidDestinationPathError(NDCRuntimeError):
+    pass
+
+
 class NDC:
     """
     NDC binary wrapper.
@@ -62,6 +67,7 @@ class NDC:
         'NDC Ver.0 alpha06',
     ]
     DELIMITER = '\t'
+    DIR = '<DIR>'
     ERRORS = {
         'イメージのオープンに失敗しました。': NDCPermissionError,
         '指定のフォルダが存在しません。': NDCFileNotFoundError,
@@ -69,6 +75,7 @@ class NDC:
         'パーティション番号が不正です。': NDCInvalidPartitionError,
         'ファイルの格納に失敗しました。': NDCFileStorageFailureError,
         '読み込み元パスが存在しません。': NDCInvalidSourcePathError,
+        '書き込み先フォルダが存在しません。': NDCInvalidDestinationPathError,
     }
 
     def __init__(self, bin='ndc'):
@@ -92,7 +99,8 @@ class NDC:
             raise NDCVersionException('Unsupported version: %s' % version)
         self.version = version
 
-    def __run(self, cmd):
+    def __run(self, *args):
+        cmd = [self.bin] + list(args)
         try:
             result = (subprocess
                       .check_output(cmd)
@@ -113,78 +121,95 @@ class NDC:
 
     def list(self, image, path='', partition=0):
         SKIP = ['.', '..']
-        cmd = [
-            self.bin,
+        args = [
             expanduser(image),
             str(partition),
             path,
         ]
         return [self.__parse(args)
-                for args in self.__run(cmd)
+                for args in self.__run(*args)
                 if args[0] not in SKIP]
 
     def find(self, image, pattern, path='', partition=0):
-        cmd = [
-            self.bin,
+        result = self.__run(
             'F',
             expanduser(image),
             str(partition),
             path,
             pattern,
-        ]
-        result = self.__run(cmd)
+        )
         return self.__parse(result[0]) if result else None
 
     def find_all(self, image, pattern, path='', partition=0):
-        cmd = [
-            self.bin,
+        args = [
             'FA',
             expanduser(image),
             str(partition),
             path,
             pattern,
         ]
-        return [self.__parse(line) for line in self.__run(cmd)]
+        return [self.__parse(line) for line in self.__run(*args)]
 
-    def get(self, image, path, dest=None, partition=0):
-        cmd = [
-            self.bin,
+    def get(self, image, path, dest='.', partition=0):
+        self.__run(
             'G',
             expanduser(image),
             str(partition),
             path,
             dest,
-        ]
-        self.__run(cmd)
+        )
 
     def put(self, image, src, path, partition=0):
-        cmd = [
-            self.bin,
+        self.__run(
             'P',
             expanduser(image),
             str(partition),
             expanduser(src),
             path,
-        ]
-        self.__run(cmd)
+        )
 
     def put_directory(self, image, directory, path='', partition=0):
-        cmd = [
-            self.bin,
+        self.__run(
             'PD',
             expanduser(image),
             str(partition),
             directory,
             path,
-        ]
-        self.__run(cmd)
+        )
 
     def delete(self, image, path, partition=0):
-        cmd = [
-            self.bin,
+        self.__run(
             'D',
             expanduser(image),
             str(partition),
             path,
-        ]
-        self.__run(cmd)
+        )
+
+    def walk(self, image, top=''):
+        """
+        A generator that walks the files of an image, starting from path `top`.
+        """
+        results = self.list(image, top)[1:]  # skip volume
+
+        dirpaths = []
+        filenames = []
+        for name, _, name_type, _ in results:
+            if name_type == self.DIR:
+                dirpaths.append(name)
+            else:
+                filenames.append(name)
+
+        yield (top, dirpaths, filenames)
+
+        for dirpath in dirpaths:
+            yield from self.walk(image, join(top, dirpath))
+
+    def extract(self, image, destination='.'):
+        """
+        Extract the contents of `image` to `destination`.
+        """
+        for dirpath, dirnames, filenames in self.walk(image):
+            for filename in filenames:
+                self.get(image, join(dirpath, filename), join(destination, dirpath))
+            for dirname in dirnames:
+                mkdir(join(destination, dirpath, dirname))
