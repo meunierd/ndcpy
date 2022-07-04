@@ -11,6 +11,7 @@ setup(
     packages=["ndc"],
     install_requires=[
         'python-dateutil',
+        'rich',
     ],
     extras_require={
         'dev': [
