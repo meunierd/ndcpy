@@ -2,6 +2,8 @@ import argparse
 import rich
 from . import NDC
 
+from os.path import join
+
 from rich import print
 from rich.tree import Tree
 from rich.text import Text
@@ -9,10 +11,21 @@ from rich.text import Text
 
 def ndc_list(args):
     ndc = NDC()
-    tree = Tree("dir")
-    for path, dirs, files in ndc.walk(image=args.image):
-        for directory in dirs:
-            tree.add(directory)
+    tree = ndc_tree(ndc, args.image, args.path or "")
+    print(tree)
+
+
+def ndc_tree(ndc, image, path="", tree=None):
+    if tree is None:
+        tree = Tree(path)
+    results = ndc.list(image, path)[1:]  # skip volume
+    for name, _, name_type, _ in results:
+        if name_type == NDC.DIR:
+            branch = tree.add(name)
+            ndc_tree(ndc, image, join(path, name), branch)
+        else:
+            tree.add(name)
+    return tree
 
 
 def parse_args():
